@@ -12,7 +12,6 @@ import type { FireReport, Coordinates } from '../types';
 Modal.setAppElement('#root');
 
 const FireMarker = ({ intensity = 1 }: { intensity?: number }) => {
-  // Calculate size based on intensity (1-4)
   const baseSize = 48;
   const sizeIncrement = 24;
   const size = baseSize + (intensity - 1) * sizeIncrement;
@@ -25,7 +24,7 @@ const FireMarker = ({ intensity = 1 }: { intensity?: number }) => {
       marginTop: -size,
       cursor: 'pointer',
       pointerEvents: 'auto',
-      transition: 'all 0.3s ease' // Smooth size transition
+      transition: 'all 0.3s ease'
     }}>
       <Lottie 
         animationData={fireAnimation} 
@@ -66,6 +65,31 @@ const FireReportForm: React.FC = () => {
     };
   }, []);
 
+  const triggerSOS = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/trigger-sos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        toast.success('SOS alert sent successfully!', {
+          autoClose: 10000 // or duration/timeOut depending on your library
+        });
+      } else {
+        throw new Error(data.message || 'Failed to send SOS');
+      }
+    } catch (error) {
+      toast.error(`SOS failed: ${error.message}`);
+      console.error('SOS error:', error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -94,6 +118,7 @@ const FireReportForm: React.FC = () => {
 
       setMessageDetails(JSON.stringify(message, null, 2));
       setIsModalOpen(true);
+      await triggerSOS();
     } catch (error) {
       console.error('Error sending fire alert:', error);
     }
@@ -189,11 +214,18 @@ const FireReportForm: React.FC = () => {
 
   return (
     <div className="bg-[#1A1F2E] rounded-xl shadow-xl overflow-hidden">
-      <div className="p-6 border-b border-gray-700">
+      <div className="p-6 border-b border-gray-700 flex justify-between items-center">
         <h2 className="text-2xl font-bold flex items-center gap-2">
           <Flame className="text-red-500" />
           Fire Report System
         </h2>
+        <button 
+          onClick={triggerSOS}
+          className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors shadow-md hover:shadow-red-500/20"
+        >
+          <AlertTriangle className="w-5 h-5" />
+          SOS Alert
+        </button>
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-8">
