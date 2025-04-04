@@ -4,19 +4,22 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env
+load_dotenv()  
 
 # Twilio credentials
-TWILIO_ACCOUNT_SID = 'AC77ed9afe70adaea1e2240186e4318422'
-TWILIO_AUTH_TOKEN = 'c34ecb8eec88f7997bd3e204540934ee'
-TWILIO_PHONE_NUMBER = '+15632782223'
-RECIPIENT_PHONE_NUMBER = '+917384228365'
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+RECIPIENT_PHONE_NUMBER = os.getenv("RECIPIENT_PHONE_NUMBER")
 
 # Email credentials
-EMAIL_SENDER = 'firelinx33@gmail.com'
-EMAIL_PASSWORD = 'yqkq zgho yowt ijln'
-EMAIL_RECIPIENTS = [
-    'swarajit19082003@gmail.com'
-]
+EMAIL_SENDER = os.getenv("EMAIL_SENDER")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+EMAIL_RECIPIENTS = os.getenv("EMAIL_RECIPIENTS").split(",")  # Split if multiple emails
 
 # Function to get current timestamp
 def get_current_timestamp():
