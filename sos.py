@@ -1,6 +1,5 @@
 from twilio.rest import Client
 import requests
-import webbrowser
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -16,10 +15,7 @@ RECIPIENT_PHONE_NUMBER = '+917384228365'
 EMAIL_SENDER = 'firelinx33@gmail.com'
 EMAIL_PASSWORD = 'yqkq zgho yowt ijln'
 EMAIL_RECIPIENTS = [
-    'swarajit19082003@gmail.com',
-    'adrijamethodist@gmail.com',
-    'koyelisha7@gmail.com',
-    'shyantan5@gmail.com'
+    'swarajit19082003@gmail.com'
 ]
 
 # Function to get current timestamp
@@ -114,11 +110,6 @@ def sos_button_click():
     if latitude and longitude:
         sms_result = send_sms(latitude, longitude)
         email_result = send_email(latitude, longitude)
-        maps_link = generate_google_maps_link(latitude, longitude)
-        if maps_link:
-            webbrowser.open(maps_link)
-        else:
-            print("Failed to generate Google Maps link.")
         return sms_result, email_result
     else:
         manual_location = input("Unable to fetch location. Enter location manually: ")
