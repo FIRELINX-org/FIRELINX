@@ -59,7 +59,7 @@ This project is under a **custom restricted-use license**.
 - Publishing, selling, or redistributing this code **is not allowed**.
 - All changes must be approved by project maintainers.
 
-[See LICENSE.txt for full terms.](./FIRELINX_LICENSE.txt)
+[See FIRELINX_LICENSE.txt for full terms.](./FIRELINX_LICENSE.txt)
 
 ---
 ## 🛠 Installation
