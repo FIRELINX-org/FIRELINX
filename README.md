@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/license/FIRELINX-org/FIRELINX/FIRELINX_LICENSE" alt="License">
+  <img src="https://img.shields.io/github/license/FIRELINX-org/FIRELINX" alt="License">
   <img src="https://img.shields.io/github/stars/FIRELINX-org/FIRELINX" alt="Stars">
   <img src="https://img.shields.io/github/issues/FIRELINX-org/FIRELINX" alt="Issues">
   <img src="https://img.shields.io/github/last-commit/FIRELINX-org/FIRELINX" alt="Last Commit">
