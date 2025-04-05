@@ -18,14 +18,15 @@
 
 ---
 
-## 📸 Demo
+## 📸 
 
-> Add a gif or screenshot showing the project in action.
+<p align="center">
+  <img src="Landing_page.png" alt="Project Logo" width="150">
+</p>
 
-![Demo](demo.gif)
-
-Live Demo: [https://YOUR_USERNAME.github.io/YOUR_PROJECT_NAME](https://YOUR_USERNAME.github.io/YOUR_PROJECT_NAME)
-
+<p align="center">
+  <img src="Cenral_dashboard.png" alt="Project Logo" width="150">
+</p>
 ---
 
 ## 📖 About
