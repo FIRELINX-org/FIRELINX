@@ -9,11 +9,12 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/license/FIRELINX-org/FIRELINX" alt="License">
-  <img src="https://img.shields.io/github/stars/FIRELINX-org/FIRELINX" alt="Stars">
-  <img src="https://img.shields.io/github/issues/FIRELINX-org/FIRELINX" alt="Issues">
-  <img src="https://img.shields.io/github/last-commit/FIRELINX-org/FIRELINX" alt="Last Commit">
+  <img src="https://img.shields.io/badge/license-custom-blue" alt="License">
+  <img src="https://img.shields.io/badge/stars-private-lightgrey" alt="Stars">
+  <img src="https://img.shields.io/badge/issues-tracked-internal-orange" alt="Issues">
+  <img src="https://img.shields.io/badge/last--commit-private-inactive" alt="Last Commit">
 </p>
+
 
 ---
 
