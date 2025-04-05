@@ -1,0 +1,20 @@
+Copyright (c) 2025 [Your Name or Team]
+
+All rights reserved.
+
+Permission is hereby granted, **for personal use and development only**, to any person obtaining a copy of this software and associated documentation files (the "Software"), to view and modify the Software **solely for the purpose of submitting Pull Requests to the original repository**.
+
+**The following are strictly prohibited without prior written permission from the project administrator:**
+
+- Republishing the Software or any part of it
+- Selling or offering the Software for sale
+- Distributing the Software, in original or modified form
+- Sublicensing or redistributing the Software in any way
+- Using the Software in any commercial or production environment
+
+Any contributions made via Pull Requests may be reviewed and approved **only by the project maintainers**. No changes will be reflected in the main branch without administrator approval.
+
+By using this Software, you agree to these terms.
+
+For permission requests, please contact: [Your Email or GitHub]
+
