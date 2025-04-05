@@ -30,15 +30,15 @@ Live Demo: [https://YOUR_USERNAME.github.io/YOUR_PROJECT_NAME](https://YOUR_USER
 
 ## 📖 About
 
-Briefly explain what your project is, what problem it solves, and who it's for.
+Advanced fire detection and emergency response system for a safer tomorrow...
 
 ---
 
 ## ✨ Features
 
-- ✅ Feature 1
-- ✅ Feature 2
-- ✅ Feature 3
+- ✅ Advanced Security: State-of-the-art fire detection and prevention systems
+- ✅ Real-time Alerts: Instant notifications and emergency response coordination
+- ✅ Community Safety: Protecting communities through advanced fire monitoring
 
 ---
 
@@ -68,7 +68,7 @@ This project is under a **custom restricted-use license**.
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_PROJECT_NAME.git
+git clone https://github.com/FIRELINX-org/FIRELINX.git
 cd YOUR_PROJECT_NAME
 
 
