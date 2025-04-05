@@ -8,13 +8,6 @@
   Advanced fire detection and emergency response system for a safer tomorrow...
 </p>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/license-custom-blue" alt="License">
-  <img src="https://img.shields.io/badge/stars-private-lightgrey" alt="Stars">
-  <img src="https://img.shields.io/badge/issues-tracked-internal-orange" alt="Issues">
-  <img src="https://img.shields.io/badge/last--commit-private-inactive" alt="Last Commit">
-</p>
-
 
 ---
 
