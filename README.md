@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.png" alt="Project Logo" width="150">
+  <img src="LOGO.png" alt="Project Logo" width="150">
 </p>
 
 <h1 align="center">FIRELINX</h1>
