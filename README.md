@@ -51,7 +51,17 @@ Briefly explain what your project is, what problem it solves, and who it's for.
 | Other Tools | Git, Postman, VS Code      |
 
 ---
+## 🔒 License
 
+This project is under a **custom restricted-use license**.
+
+- You may view and modify the code **only** for suggesting improvements via Pull Requests.
+- Publishing, selling, or redistributing this code **is not allowed**.
+- All changes must be approved by project maintainers.
+
+[See LICENSE.txt for full terms.](./FIRELINX_LICENSE.txt)
+
+---
 ## 🛠 Installation
 
 Clone the repository:
@@ -59,3 +69,5 @@ Clone the repository:
 ```bash
 git clone https://github.com/YOUR_USERNAME/YOUR_PROJECT_NAME.git
 cd YOUR_PROJECT_NAME
+
+
