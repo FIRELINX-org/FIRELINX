@@ -26,7 +26,7 @@
 
 
 <p align="center">
-  <img src="src/assets/Central_dashboard.png" alt="Central_dashboard" width="150">
+  <img src="src/assets/Central_dashboard.png" alt="Central_dashboard" style="max-width: 80%; height: auto; border-radius: 10px;">
 </p>
 ---
 
