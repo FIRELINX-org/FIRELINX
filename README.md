@@ -21,7 +21,7 @@
 ## 📸 
 
 <p align="center">
-  <img src="Landing_page.png" alt="Project Logo" width="150">
+  <img src="src/assets/Landing_Page.png" alt="Landing_Page" width="150">
 </p>
 
 <p align="center">
