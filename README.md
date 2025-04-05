@@ -21,11 +21,12 @@
 ## 📸 
 
 <p align="center">
-  <img src="src/assets/Landing_Page.png" alt="Landing_Page" width="150">
+  <img src="src/assets/Landing_Page.png" alt="Landing_Page" style="max-width: 80%; height: auto; border-radius: 10px;">
 </p>
 
+
 <p align="center">
-  <img src="Cenral_dashboard.png" alt="Project Logo" width="150">
+  <img src="src/assets/Central_dashboard.png" alt="Central_dashboard" width="150">
 </p>
 ---
 
