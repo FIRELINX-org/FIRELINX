@@ -27,12 +27,12 @@
 ### 🔥 Smart Detection
 - AI-powered flame/smoke recognition.
 - Multi-spectral sensor fusion.
-- Environmental anomaly detection
+- Environmental anomaly detection.
 
 ### 🚨 Instant Response
-- Automated emergency alerts
-- Integrated with local fire departments
-- Real-time evacuation mapping
+- Automated emergency alerts.
+- Integrated with local fire departments.
+- Real-time evacuation mapping.
 
 ### 📊 Central Dashboard
 <div align="center">
@@ -41,9 +41,9 @@
 
 ### 🌐 Community Protection
 
-- Neighborhood threat monitoring
-- Historical incident analytics
-- Prevention recommendations
+- Neighborhood threat monitoring.
+- Historical incident analytics.
+- Prevention recommendations.
 
 </div>
 
