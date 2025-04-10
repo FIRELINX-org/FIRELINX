@@ -40,6 +40,7 @@
 </div>
 
 ### 🌐 Community Protection
+
 - Neighborhood threat monitoring
 - Historical incident analytics
 - Prevention recommendations
