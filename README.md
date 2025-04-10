@@ -1,6 +1,6 @@
 <p align="center">
   <img src="LOGO.png" alt="FIRELINX Logo" width="200">
-  <h1 align="center">🔥 FIRELINX</h1>
+  <h1 align="center">🔥FIRELINX</h1>
   <h3 align="center">Next-Gen Fire Detection & Emergency Response System</h3>
   <p align="center">
     <img src="https://img.shields.io/badge/version-1.0.0-blue" alt="Version">
