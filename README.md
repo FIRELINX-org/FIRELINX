@@ -58,6 +58,7 @@
 - Prevention recommendations.
 
 </div>
+
 [🔝 Go to Top](#top)
 
 ---
@@ -74,6 +75,7 @@
 | **AI/ML**     | <img src="https://img.shields.io/badge/TensorFlow-FF6F00?style=flat&logo=tensorflow&logoColor=white" height="20"> <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=flat&logo=pytorch&logoColor=white" height="20"> |
 
 </div>
+
 [🔝 Go to Top](#top)
 
 ---
