@@ -34,9 +34,10 @@
 
 ---
 
-## ✨ Core Features [🔝 Go to Top](#top)
+## ✨ Core Features 
 
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0;">
+
 
 ### 🔥 Smart Detection 
 - AI-powered flame/smoke recognition.
@@ -59,10 +60,11 @@
 - Prevention recommendations.
 
 </div>
+[🔝 Go to Top](#top)
 
 ---
 
-## ⚙️ Tech Stack [🔝 Go to Top](#top)
+## ⚙️ Tech Stack 
 
 <div align="center">
 
@@ -74,22 +76,22 @@
 | **AI/ML**     | <img src="https://img.shields.io/badge/TensorFlow-FF6F00?style=flat&logo=tensorflow&logoColor=white" height="20"> <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=flat&logo=pytorch&logoColor=white" height="20"> |
 
 </div>
-
+[🔝 Go to Top](#top)
 ---
 
 <details>
-<summary><strong>📦 Click here to view the full Components List</strong></summary> [🔝 Go to Top](#top)
-
+<summary><strong>📦 Click here to view the full Components List</strong></summary> 
 <br>
 
 <!-- Full component table goes here (as in your original code) -->
 
 </details>
+[🔝 Go to Top](#top)
 
 ---
 
-## 🛠️ Installation [🔝 Go to Top](#top)
-
+## 🛠️ Installation 
+[🔝 Go to Top](#top)
 ```bash
 # Clone the repository
 git clone https://github.com/FIRELINX-org/FIRELINX.git
