@@ -10,7 +10,7 @@
 </p>
 
 ---
-<a name="top"></a>
+
 
 ## 📚 Table of Contents
 
@@ -23,13 +23,14 @@
 
 ---
 
-## 🚀 Overview [🔝 Go to Top](#top)
-
+## 🚀 Overview 
 <div align="center">
   <img src="src/assets/Landing_Page.png" alt="Landing Page" style="max-width:90%; border-radius:15px; box-shadow:0 10px 20px rgba(0,0,0,0.1); margin:20px 0;">
 </div>
 
 **FIRELINX** is an AI-powered fire detection platform that combines IoT sensors with real-time analytics to prevent disasters before they happen. Our system reduces response times by 78% compared to traditional solutions.
+
+[🔝 Go to Top](#top)
 
 ---
 
@@ -37,22 +38,22 @@
 
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0;">
 
-### 🔥 Smart Detection [🔝 Go to Top](#top)
+### 🔥 Smart Detection 
 - AI-powered flame/smoke recognition.
 - Multi-spectral sensor fusion.
 - Environmental anomaly detection.
 
-### 🚨 Instant Response [🔝 Go to Top](#top)
+### 🚨 Instant Response 
 - Automated emergency alerts.
 - Integrated with local fire departments.
 - Real-time evacuation mapping.
 
-### 📊 Central Dashboard [🔝 Go to Top](#top)
+### 📊 Central Dashboard 
 <div align="center">
   <img src="src/assets/Central_dashboard.png" alt="Dashboard" style="max-width:100%; border-radius:12px; margin-top:10px;">
 </div>
 
-### 🌐 Community Protection [🔝 Go to Top](#top)
+### 🌐 Community Protection 
 - Neighborhood threat monitoring.
 - Historical incident analytics.
 - Prevention recommendations.
