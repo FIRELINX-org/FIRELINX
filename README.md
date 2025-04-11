@@ -59,6 +59,7 @@
 
 </div>
 [🔝 Go to Top](#top)
+
 ---
 
 ## ⚙️ Tech Stack
@@ -74,6 +75,7 @@
 
 </div>
 [🔝 Go to Top](#top)
+
 ---
 <details>
 <summary><strong>📦 Click here to view the full Components List</strong></summary>
