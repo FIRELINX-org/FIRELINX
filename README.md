@@ -10,6 +10,9 @@
 </p>
 
 ---
+
+<a name="top"></a>
+
 ## 📚 Table of Contents
 
 - [🚀 Overview](#-overview)
@@ -26,7 +29,7 @@
 </div>
 
 **FIRELINX** is an AI-powered fire detection platform that combines IoT sensors with real-time analytics to prevent disasters before they happen. Our system reduces response times by 78% compared to traditional solutions.
-
+[🔝 Go to Top](#top)
 ---
 
 ## ✨ Core Features
@@ -55,7 +58,7 @@
 - Prevention recommendations.
 
 </div>
-
+[🔝 Go to Top](#top)
 ---
 
 ## ⚙️ Tech Stack
@@ -70,7 +73,7 @@
 | **AI/ML**     | <img src="https://img.shields.io/badge/TensorFlow-FF6F00?style=flat&logo=tensorflow&logoColor=white" height="20"> <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=flat&logo=pytorch&logoColor=white" height="20"> |
 
 </div>
-
+[🔝 Go to Top](#top)
 ---
 <details>
 <summary><strong>📦 Click here to view the full Components List</strong></summary>
@@ -164,3 +167,5 @@ npm run dev
 
 
 make an working index for the whole code which on clicking will take the user to that section...
+```
+[🔝 Go to Top](#top)
