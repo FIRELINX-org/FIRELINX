@@ -11,13 +11,14 @@
 
 ---
 
-## 🧭 Table of Contents
+## 📚 Table of Contents
 
 - [🚀 Overview](#-overview)
 - [✨ Core Features](#-core-features)
 - [⚙️ Tech Stack](#️-tech-stack)
 - [📦 Components List](#-click-here-to-view-the-full-components-list)
 - [🛠️ Installation](#️-installation)
+
 
 ---
 
