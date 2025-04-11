@@ -10,6 +10,7 @@
 </p>
 
 ---
+<a name="top"></a>
 
 ## 📚 Table of Contents
 
@@ -22,7 +23,7 @@
 
 ---
 
-## 🚀 Overview
+## 🚀 Overview [🔝 Go to Top](#top)
 
 <div align="center">
   <img src="src/assets/Landing_Page.png" alt="Landing Page" style="max-width:90%; border-radius:15px; box-shadow:0 10px 20px rgba(0,0,0,0.1); margin:20px 0;">
@@ -32,26 +33,26 @@
 
 ---
 
-## ✨ Core Features
+## ✨ Core Features [🔝 Go to Top](#top)
 
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0;">
 
-### 🔥 Smart Detection
+### 🔥 Smart Detection [🔝 Go to Top](#top)
 - AI-powered flame/smoke recognition.
 - Multi-spectral sensor fusion.
 - Environmental anomaly detection.
 
-### 🚨 Instant Response
+### 🚨 Instant Response [🔝 Go to Top](#top)
 - Automated emergency alerts.
 - Integrated with local fire departments.
 - Real-time evacuation mapping.
 
-### 📊 Central Dashboard
+### 📊 Central Dashboard [🔝 Go to Top](#top)
 <div align="center">
   <img src="src/assets/Central_dashboard.png" alt="Dashboard" style="max-width:100%; border-radius:12px; margin-top:10px;">
 </div>
 
-### 🌐 Community Protection
+### 🌐 Community Protection [🔝 Go to Top](#top)
 - Neighborhood threat monitoring.
 - Historical incident analytics.
 - Prevention recommendations.
@@ -60,7 +61,7 @@
 
 ---
 
-## ⚙️ Tech Stack
+## ⚙️ Tech Stack [🔝 Go to Top](#top)
 
 <div align="center">
 
@@ -76,7 +77,7 @@
 ---
 
 <details>
-<summary><strong>📦 Click here to view the full Components List</strong></summary>
+<summary><strong>📦 Click here to view the full Components List</strong></summary> [🔝 Go to Top](#top)
 
 <br>
 
@@ -86,7 +87,7 @@
 
 ---
 
-## 🛠️ Installation
+## 🛠️ Installation [🔝 Go to Top](#top)
 
 ```bash
 # Clone the repository
