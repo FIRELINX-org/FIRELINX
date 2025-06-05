@@ -8,7 +8,7 @@ import re
 
 app = Flask(__name__)
 
-TELEGRAM_TOKEN = "7908627723:AAHeYHgQiaCjKYOfyCeasl5gWMdlety2JNU"
+TELEGRAM_TOKEN = "8120467792:AAH8MjGR4TQtk0g8--kOJwC7hZEBpi28K8I"
 MQTT_BROKER = "259353f6c5704a35aeb3dff107a0ab04.s1.eu.hivemq.cloud"
 MQTT_PORT = 8883
 MQTT_TOPIC = "staferb/web_alerts"
@@ -34,6 +34,10 @@ def reply(chat_id, text, buttons=None, markdown=False):
     if buttons:
         payload["reply_markup"] = json.dumps({"keyboard": [[{"text": b} for b in row] for row in buttons], "resize_keyboard": True, "one_time_keyboard": True})
     requests.post(f"{TELEGRAM_API_URL}/sendMessage", json=payload)
+
+@app.route("/ping", methods=["GET"])
+def ping():
+    return "Pong!", 200
 
 def format_ddm(coord, is_lat=True):
     direction = 'N' if (coord >= 0 and is_lat) else 'S' if is_lat else 'E' if coord >= 0 else 'W'

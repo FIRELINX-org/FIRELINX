@@ -5,7 +5,7 @@ import json
 app = Flask(__name__)
 
 # Telegram Bot Token
-TELEGRAM_TOKEN = "7908627723:AAHeYHgQiaCjKYOfyCeasl5gWMdlety2JNU"
+TELEGRAM_TOKEN = "8120467792:AAH8MjGR4TQtk0g8--kOJwC7hZEBpi28K8I"
 
 # HiveMQ MQTT Config
 MQTT_BROKER = "259353f6c5704a35aeb3dff107a0ab04.s1.eu.hivemq.cloud"
