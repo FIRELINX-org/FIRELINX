@@ -102,8 +102,9 @@ def send_mqtt_alert(chat_id, user_name, user_id, fire_type, intensity, lat, lng)
 def extract_lat_lng_from_image(image_bytes):
     try:
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        image.save("temp_ocr.jpg")
-        results = reader.readtext("temp_ocr.jpg", detail=0)
+        temp_image_path = "temp_ocr.jpg"
+        image.save(temp_image_path)
+        results = reader.readtext(temp_image_path, detail=0)
         text = " ".join(results)
         print("📜 OCR Text:\n", text)
 
@@ -114,6 +115,11 @@ def extract_lat_lng_from_image(image_bytes):
             return float(lat_match.group(1)), float(lng_match.group(1))
     except Exception as e:
         print("❌ OCR extract error:", e)
+    finally:
+        # Delete the temporary image file
+        if os.path.exists(temp_image_path):
+            os.remove(temp_image_path)
+            print("🗑️ Temporary OCR image deleted.")
     return None, None
 
 @app.route("/ping", methods=["GET"])
