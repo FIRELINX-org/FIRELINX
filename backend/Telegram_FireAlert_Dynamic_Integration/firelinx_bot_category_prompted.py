@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request
 import paho.mqtt.publish as publish
 import requests
@@ -5,44 +6,57 @@ import json
 from datetime import datetime
 import ssl
 import re
-import os
+import easyocr
+from PIL import Image
+from PIL.ExifTags import TAGS, GPSTAGS
+import io
 from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
-load_dotenv()  # Load environment variables from .env file
-
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
-print(f"🔑 [Telegram Token] {TELEGRAM_TOKEN[:5]}...")  # Log only the first 5 characters for security
-MQTT_BROKER = os.environ.get("MQTT_BROKER", "")
-MQTT_PORT = int(os.environ.get("MQTT_PORT", "8883"))
-MQTT_TOPIC = os.environ.get("MQTT_TOPIC", "staferb/web_alerts")
-MQTT_USERNAME = os.environ.get("MQTT_USERNAME", "")
-MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD", "")
+# Load environment variables
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
+print("🔑 Loaded TELEGRAM_TOKEN:", TELEGRAM_TOKEN)
+MQTT_BROKER = os.environ.get("MQTT_BROKER")
+MQTT_PORT = int(os.environ.get("MQTT_PORT", 8883))
+MQTT_TOPIC = os.environ.get("MQTT_TOPIC")
+MQTT_USERNAME = os.environ.get("MQTT_USERNAME")
+MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD")
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 
 FIRE_TYPES = {
-    "A": "🟢 Type A - Ordinary Combustibles",
+    "A": "🟢 Type A - Combustibles",
     "B": "🟡 Type B - Flammable Liquids",
     "C": "🔴 Type C - Electrical Fires",
     "D": "🟠 Type D - Metal Fires"
 }
 INTENSITIES = ["1", "2", "3", "4"]
 user_sessions = {}
+reader = easyocr.Reader(['en'], gpu=False)
 
+# === HELPERS ===
 def reply(chat_id, text, buttons=None, markdown=False):
     payload = {
         "chat_id": chat_id,
-        "text": text,
-        "parse_mode": "Markdown" if markdown else None
+        "text": text
     }
-    if buttons:
-        payload["reply_markup"] = json.dumps({"keyboard": [[{"text": b} for b in row] for row in buttons], "resize_keyboard": True, "one_time_keyboard": True})
-    requests.post(f"{TELEGRAM_API_URL}/sendMessage", json=payload)
+    if markdown:
+        payload["parse_mode"] = "Markdown"
 
-@app.route("/ping", methods=["GET"])
-def ping():
-    return "Pong!", 200
+    if buttons:
+        payload["reply_markup"] = json.dumps({
+            "keyboard": [[{"text": b} for b in row] for row in buttons],  # fixed: correct button structure
+            "resize_keyboard": True,
+            "one_time_keyboard": True
+        })
+
+    try:
+        print("📤 Reply payload:", payload)
+        response = requests.post(f"{TELEGRAM_API_URL}/sendMessage", json=payload)
+        print("📬 Telegram API response:", response.status_code, response.text)
+    except Exception as e:
+        print("❌ Telegram reply error:", e)
 
 def format_ddm(coord, is_lat=True):
     direction = 'N' if (coord >= 0 and is_lat) else 'S' if is_lat else 'E' if coord >= 0 else 'W'
@@ -50,32 +64,6 @@ def format_ddm(coord, is_lat=True):
     degrees = int(coord)
     minutes = (coord - degrees) * 60
     return f"{degrees}°{minutes:.4f}'{direction}"
-
-def extract_coords_from_url(url):
-    try:
-        response = requests.get(url, allow_redirects=True, timeout=10)
-        resolved = response.url
-        print(f"🔍 [Resolved URL] {resolved}")  # <--- This line logs the final URL
-
-        # Try format 1: ...@lat,lng,...
-        match = re.search(r'@([-\\d.]+),([-\\d.]+)', resolved)
-        if match:
-            return float(match.group(1)), float(match.group(2))
-
-        # Try format 2: ...!3dlat!4dlng
-        match = re.search(r'!3d([-\\d.]+)!4d([-\\d.]+)', resolved)
-        if match:
-            return float(match.group(1)), float(match.group(2))
-
-        # Try format 3: query=lat,lng
-        match = re.search(r'query=([-\\d.]+),([-\\d.]+)', resolved)
-        if match:
-            return float(match.group(1)), float(match.group(2))
-
-        print(f"❌ Could not parse coordinates from resolved URL.")
-    except Exception as e:
-        print("⚠️ Error resolving URL:", e)
-    return None, None
 
 def send_mqtt_alert(chat_id, user_name, user_id, fire_type, intensity, lat, lng):
     latitude = format_ddm(lat, True)
@@ -99,7 +87,7 @@ def send_mqtt_alert(chat_id, user_name, user_id, fire_type, intensity, lat, lng)
     try:
         publish.single(
             MQTT_TOPIC,
-            payload=json.dumps(alert, ensure_ascii=False),
+            payload=json.dumps(alert, separators=(",", ":"), ensure_ascii=False),
             hostname=MQTT_BROKER,
             port=MQTT_PORT,
             auth={'username': MQTT_USERNAME, 'password': MQTT_PASSWORD},
@@ -109,33 +97,73 @@ def send_mqtt_alert(chat_id, user_name, user_id, fire_type, intensity, lat, lng)
                        f"🔥 *Intensity*: {intensity}\n📍 *Location*: {latitude}, {longitude}", markdown=True)
         user_sessions.pop(chat_id, None)
     except Exception as e:
-        reply(chat_id, f"❌ Error: {str(e)}")
+        reply(chat_id, f"❌ MQTT Error: {str(e)}")
 
+def extract_lat_lng_from_image(image_bytes):
+    try:
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        image.save("temp_ocr.jpg")
+        results = reader.readtext("temp_ocr.jpg", detail=0)
+        text = " ".join(results)
+        print("📜 OCR Text:\n", text)
+
+        lat_match = re.search(r"Lat[:\s]*([0-9.]+)", text, re.IGNORECASE)
+        lng_match = re.search(r"Long[:\s]*([0-9.]+)", text, re.IGNORECASE)
+
+        if lat_match and lng_match:
+            return float(lat_match.group(1)), float(lng_match.group(1))
+    except Exception as e:
+        print("❌ OCR extract error:", e)
+    return None, None
+
+@app.route("/ping", methods=["GET"])
+def ping():
+    return "Pong!", 200
 @app.route(f"/webhook/{TELEGRAM_TOKEN}", methods=["POST"])
 def telegram_webhook():
     data = request.get_json()
+    print("📩 Telegram Data:", data)
+
     message = data.get("message", {})
-    text = message.get("text", "").strip()
     chat_id = message.get("chat", {}).get("id")
     user = message.get("from", {})
     user_name = user.get("username") or user.get("first_name", "Unknown")
     user_id = user.get("id", 0)
     session = user_sessions.get(chat_id, {})
 
+    # 🖼 Handle photo upload
+    if "photo" in message:
+        try:
+            file_id = message["photo"][-1]["file_id"]
+            file_info = requests.get(f"{TELEGRAM_API_URL}/getFile?file_id={file_id}").json()
+            file_path = file_info["result"]["file_path"]
+            image_bytes = requests.get(f"https://api.telegram.org/file/bot{TELEGRAM_TOKEN}/{file_path}").content
+
+            lat, lng = extract_lat_lng_from_image(image_bytes)
+            print(f"🧠 Extracted Lat: {lat}, Lng: {lng}")
+
+            if lat and lng:
+                user_sessions[chat_id] = {"lat": lat, "lng": lng, "step": "type"}
+                reply(chat_id, "📷 Location extracted from image!\nChoose fire type:", [[k] for k in FIRE_TYPES])
+            else:
+                reply(chat_id, "⚠️ Couldn't extract Lat/Long. Please try again or use `/fire` manually.")
+        except Exception as e:
+            print("❌ Image error:", e)
+            reply(chat_id, "❌ Error reading image.")
+        return "OK", 200
+
+    # Handle text commands
+    text = message.get("text", "").strip()
+
     if text.lower() in ["/start", "start"]:
-        reply(chat_id, "👋 *Welcome to FireLinx!*\n\nSend a Google Maps location link or use the format:\n"
-                      "`/fire B 3 22.5726 88.3639`", markdown=True)
+        reply(chat_id, "👋 *Welcome to FireLinx!*\n\n📷 Send a GPS-tagged image with `Lat` and `Long`\n"
+                      "Or use `/fire B 3 22.5726 88.3639`", markdown=True)
         return "OK", 200
 
     if text.lower() == "/help":
-        reply(chat_id, "📘 *Help Guide*\n\n"
-                      "• To report fire:\n  1. Send Google Maps link OR\n  2. Use `/fire <type> <intensity> <lat> <lng>`\n"
-                      "• I'll guide you from there.\n\n"
-                      "Fire Types:\n" + "\n".join([f"`{k}` - {v}" for k, v in FIRE_TYPES.items()]) +
-                      "\nIntensity: `1` (low) to `4` (severe)", markdown=True)
+        reply(chat_id, "📘 *Help*\nSend image with `Lat` & `Long`, or use `/fire B 3 <lat> <lng>`", markdown=True)
         return "OK", 200
 
-    # Manual full command
     if text.startswith("/fire"):
         try:
             _, fire_type, intensity, raw_lat, raw_lng = text.split()
@@ -146,32 +174,21 @@ def telegram_webhook():
             reply(chat_id, "❌ Invalid format. Use `/fire B 3 22.5726 88.3639`", markdown=True)
         return "OK", 200
 
-    # Step 1: Google Maps link
-    if "maps.app.goo.gl" in text or "google.com/maps" in text:
-        lat, lng = extract_coords_from_url(text)
-        if lat and lng:
-            user_sessions[chat_id] = {"lat": lat, "lng": lng, "step": "type"}
-            reply(chat_id, "📍 Location received!\nChoose fire type:", [[list(FIRE_TYPES.keys())]])
-        else:
-            reply(chat_id, "❌ Could not extract location from link.")
-        return "OK", 200
-
-    # Step 2: Fire type
     if session.get("step") == "type" and text.upper() in FIRE_TYPES:
         session["fireType"] = text.upper()
         session["step"] = "intensity"
         user_sessions[chat_id] = session
-        reply(chat_id, "🔥 Now choose fire intensity:", [[INTENSITIES]])
+        reply(chat_id, "🔥 Choose fire intensity:", [[i] for i in INTENSITIES])
         return "OK", 200
 
-    # Step 3: Intensity
     if session.get("step") == "intensity" and text in INTENSITIES:
         session["intensity"] = text
         send_mqtt_alert(chat_id, user_name, user_id, session["fireType"], text, session["lat"], session["lng"])
         return "OK", 200
 
-    reply(chat_id, "🤖 Please send a valid Google Maps link or use `/fire B 3 22.5726 88.3639`", markdown=True)
+    reply(chat_id, "🤖 Send a GPS-tagged photo or use `/fire`.", markdown=True)
     return "OK", 200
 
+# === RUN ===
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
