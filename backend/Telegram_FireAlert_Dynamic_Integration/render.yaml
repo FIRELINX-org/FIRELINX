@@ -1,0 +1,7 @@
+services:
+  - name: firelinx-backend
+    type: web
+    env: python
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 4 -b 0.0.0.0:5000 firelinx_bot_category_prompted:app

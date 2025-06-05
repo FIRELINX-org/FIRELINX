@@ -5,15 +5,20 @@ import json
 from datetime import datetime
 import ssl
 import re
+import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
-TELEGRAM_TOKEN = "8120467792:AAH8MjGR4TQtk0g8--kOJwC7hZEBpi28K8I"
-MQTT_BROKER = "259353f6c5704a35aeb3dff107a0ab04.s1.eu.hivemq.cloud"
-MQTT_PORT = 8883
-MQTT_TOPIC = "staferb/web_alerts"
-MQTT_USERNAME = "Staferb"
-MQTT_PASSWORD = "EspWebDash@32"
+load_dotenv()  # Load environment variables from .env file
+
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
+print(f"🔑 [Telegram Token] {TELEGRAM_TOKEN[:5]}...")  # Log only the first 5 characters for security
+MQTT_BROKER = os.environ.get("MQTT_BROKER", "")
+MQTT_PORT = int(os.environ.get("MQTT_PORT", "8883"))
+MQTT_TOPIC = os.environ.get("MQTT_TOPIC", "staferb/web_alerts")
+MQTT_USERNAME = os.environ.get("MQTT_USERNAME", "")
+MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD", "")
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 
 FIRE_TYPES = {
