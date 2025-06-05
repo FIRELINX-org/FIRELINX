@@ -6,24 +6,23 @@ import json
 from datetime import datetime
 import ssl
 import re
-import easyocr
+import pytesseract
 from PIL import Image
-from PIL.ExifTags import TAGS, GPSTAGS
 import io
 from dotenv import load_dotenv
-load_dotenv()
-
-app = Flask(__name__)
 
 # Load environment variables
+load_dotenv()
+
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
-print("🔑 Loaded TELEGRAM_TOKEN:", TELEGRAM_TOKEN)
 MQTT_BROKER = os.environ.get("MQTT_BROKER")
 MQTT_PORT = int(os.environ.get("MQTT_PORT", 8883))
 MQTT_TOPIC = os.environ.get("MQTT_TOPIC")
 MQTT_USERNAME = os.environ.get("MQTT_USERNAME")
 MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD")
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
+
+app = Flask(__name__)
 
 FIRE_TYPES = {
     "A": "🟢 Type A - Combustibles",
@@ -33,9 +32,7 @@ FIRE_TYPES = {
 }
 INTENSITIES = ["1", "2", "3", "4"]
 user_sessions = {}
-reader = easyocr.Reader(['en'], gpu=False)
 
-# === HELPERS ===
 def reply(chat_id, text, buttons=None, markdown=False):
     payload = {
         "chat_id": chat_id,
@@ -46,7 +43,7 @@ def reply(chat_id, text, buttons=None, markdown=False):
 
     if buttons:
         payload["reply_markup"] = json.dumps({
-            "keyboard": [[{"text": b} for b in row] for row in buttons],  # fixed: correct button structure
+            "keyboard": [[{"text": b} for b in row] for row in buttons],
             "resize_keyboard": True,
             "one_time_keyboard": True
         })
@@ -101,25 +98,18 @@ def send_mqtt_alert(chat_id, user_name, user_id, fire_type, intensity, lat, lng)
 
 def extract_lat_lng_from_image(image_bytes):
     try:
-        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        temp_image_path = "temp_ocr.jpg"
-        image.save(temp_image_path)
-        results = reader.readtext(temp_image_path, detail=0)
-        text = " ".join(results)
-        print("📜 OCR Text:\n", text)
+        image = Image.open(io.BytesIO(image_bytes))
+        text = pytesseract.image_to_string(image)
+        print("📜 OCR Text:", text)
 
+        # Extract latitude and longitude
         lat_match = re.search(r"Lat[:\s]*([0-9.]+)", text, re.IGNORECASE)
         lng_match = re.search(r"Long[:\s]*([0-9.]+)", text, re.IGNORECASE)
 
         if lat_match and lng_match:
             return float(lat_match.group(1)), float(lng_match.group(1))
     except Exception as e:
-        print("❌ OCR extract error:", e)
-    finally:
-        # Delete the temporary image file
-        if os.path.exists(temp_image_path):
-            os.remove(temp_image_path)
-            print("🗑️ Temporary OCR image deleted.")
+        print("❌ Tesseract OCR error:", e)
     return None, None
 
 @app.route("/ping", methods=["GET"])
@@ -137,7 +127,6 @@ def telegram_webhook():
     user_id = user.get("id", 0)
     session = user_sessions.get(chat_id, {})
 
-    # 🖼 Handle photo upload
     if "photo" in message:
         try:
             file_id = message["photo"][-1]["file_id"]
@@ -158,7 +147,6 @@ def telegram_webhook():
             reply(chat_id, "❌ Error reading image.")
         return "OK", 200
 
-    # Handle text commands
     text = message.get("text", "").strip()
 
     if text.lower() in ["/start", "start"]:
@@ -195,6 +183,5 @@ def telegram_webhook():
     reply(chat_id, "🤖 Send a GPS-tagged photo or use `/fire`.", markdown=True)
     return "OK", 200
 
-# === RUN ===
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
