@@ -79,7 +79,7 @@ const FireReportForm: React.FC = () => {
       
       if (data.status === 'success') {
         toast.success('SOS alert sent successfully!', {
-          autoClose: 10000 // or duration/timeOut depending on your library
+          /* autoClose: 10000  */// or duration/timeOut depending on your library
         });
       } else {
         throw new Error(data.message || 'Failed to send SOS');

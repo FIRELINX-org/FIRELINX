@@ -7,13 +7,15 @@ app = Flask(__name__)
 # Configure CORS with explicit settings
 CORS(app, resources={
     r"/trigger-sos": {
-        "origins": ["http://localhost:5173"],
+        "origins": ["http://localhost:5173", "*"],
         "methods": ["POST", "OPTIONS"],
         "allow_headers": ["Content-Type"],
         "supports_credentials": True
     },
     r"/recognize": {
         "origins": ["http://localhost:5173"],
+        "allow_headers": ["Content-Type"],
+        "methods": ["POST", "OPTIONS"],
         "supports_credentials": True
     }
 })

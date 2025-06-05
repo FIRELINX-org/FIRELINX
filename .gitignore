@@ -12,7 +12,7 @@ node_modules/
 dist/
 dist-ssr/
 *.local
-
+/venv/
 # Environment files
 .env
 .env.*
