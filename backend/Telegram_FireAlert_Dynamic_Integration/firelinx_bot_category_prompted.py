@@ -1,187 +1,114 @@
 import os
-from flask import Flask, request
-import paho.mqtt.publish as publish
-import requests
-import json
-from datetime import datetime
-import ssl
 import re
-import pytesseract
-from PIL import Image
-import io
+import requests
+from flask import Flask, request
+from paddleocr import PaddleOCR
+from paho.mqtt import client as mqtt_client
 from dotenv import load_dotenv
+from PIL import Image
+from io import BytesIO
 
-# Load environment variables
+# Load .env
 load_dotenv()
-
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
-MQTT_BROKER = os.environ.get("MQTT_BROKER")
-MQTT_PORT = int(os.environ.get("MQTT_PORT", 8883))
-MQTT_TOPIC = os.environ.get("MQTT_TOPIC")
-MQTT_USERNAME = os.environ.get("MQTT_USERNAME")
-MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD")
-TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+MQTT_BROKER = os.getenv("MQTT_BROKER")
+MQTT_PORT = int(os.getenv("MQTT_PORT"))
+MQTT_TOPIC = os.getenv("MQTT_TOPIC")
+MQTT_CLIENT_ID = os.getenv("MQTT_CLIENT_ID")
 
 app = Flask(__name__)
+ocr = PaddleOCR(use_angle_cls=True, lang='en')
 
-FIRE_TYPES = {
-    "A": "🟢 Type A - Combustibles",
-    "B": "🟡 Type B - Flammable Liquids",
-    "C": "🔴 Type C - Electrical Fires",
-    "D": "🟠 Type D - Metal Fires"
-}
-INTENSITIES = ["1", "2", "3", "4"]
-user_sessions = {}
+mqtt_client = mqtt_client.Client(MQTT_CLIENT_ID)
+mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
 
-def reply(chat_id, text, buttons=None, markdown=False):
-    payload = {
-        "chat_id": chat_id,
-        "text": text
-    }
-    if markdown:
-        payload["parse_mode"] = "Markdown"
+def extract_lat_long_from_text(text):
+    lat_match = re.search(r'Lat(?:itude)?:?\s*([0-9]+\.[0-9]+)', text, re.I)
+    long_match = re.search(r'Long(?:itude)?:?\s*([0-9]+\.[0-9]+)', text, re.I)
+    return (lat_match.group(1), long_match.group(1)) if lat_match and long_match else (None, None)
 
-    if buttons:
-        payload["reply_markup"] = json.dumps({
-            "keyboard": [[{"text": b} for b in row] for row in buttons],
-            "resize_keyboard": True,
-            "one_time_keyboard": True
-        })
-
-    try:
-        print("📤 Reply payload:", payload)
-        response = requests.post(f"{TELEGRAM_API_URL}/sendMessage", json=payload)
-        print("📬 Telegram API response:", response.status_code, response.text)
-    except Exception as e:
-        print("❌ Telegram reply error:", e)
-
-def format_ddm(coord, is_lat=True):
-    direction = 'N' if (coord >= 0 and is_lat) else 'S' if is_lat else 'E' if coord >= 0 else 'W'
-    coord = abs(float(coord))
-    degrees = int(coord)
-    minutes = (coord - degrees) * 60
-    return f"{degrees}°{minutes:.4f}'{direction}"
-
-def send_mqtt_alert(chat_id, user_name, user_id, fire_type, intensity, lat, lng):
-    latitude = format_ddm(lat, True)
-    longitude = format_ddm(lng, False)
-    now = datetime.now()
-    alert = {
+def send_mqtt_alert(fire_type, intensity, user, lat, lon):
+    import datetime
+    now = datetime.datetime.now()
+    msg = {
         "command": "fire_alert",
         "payload": {
             "fireType": fire_type,
             "fireIntensity": intensity,
             "verified": True,
-            "user": user_name,
-            "userID": str(user_id)[-5:],
+            "user": user,
+            "userID": "TG",
             "stnID": "TG",
-            "latitude": latitude,
-            "longitude": longitude,
+            "latitude": f"{lat}°N",
+            "longitude": f"{lon}°E",
             "date": now.strftime("%d/%m"),
             "time": now.strftime("%H:%M:%S")
         }
     }
-    try:
-        publish.single(
-            MQTT_TOPIC,
-            payload=json.dumps(alert, separators=(",", ":"), ensure_ascii=False),
-            hostname=MQTT_BROKER,
-            port=MQTT_PORT,
-            auth={'username': MQTT_USERNAME, 'password': MQTT_PASSWORD},
-            tls=ssl.create_default_context()
-        )
-        reply(chat_id, f"✅ *Fire alert sent!*\n{FIRE_TYPES.get(fire_type)}\n"
-                       f"🔥 *Intensity*: {intensity}\n📍 *Location*: {latitude}, {longitude}", markdown=True)
-        user_sessions.pop(chat_id, None)
-    except Exception as e:
-        reply(chat_id, f"❌ MQTT Error: {str(e)}")
+    mqtt_client.publish(MQTT_TOPIC, str(msg))
 
-def extract_lat_lng_from_image(image_bytes):
-    try:
-        image = Image.open(io.BytesIO(image_bytes))
-        text = pytesseract.image_to_string(image)
-        print("📜 OCR Text:", text)
-
-        # Extract latitude and longitude
-        lat_match = re.search(r"Lat[:\s]*([0-9.]+)", text, re.IGNORECASE)
-        lng_match = re.search(r"Long[:\s]*([0-9.]+)", text, re.IGNORECASE)
-
-        if lat_match and lng_match:
-            return float(lat_match.group(1)), float(lng_match.group(1))
-    except Exception as e:
-        print("❌ Tesseract OCR error:", e)
-    return None, None
-
-@app.route("/ping", methods=["GET"])
-def ping():
-    return "Pong!", 200
-@app.route(f"/webhook/{TELEGRAM_TOKEN}", methods=["POST"])
-def telegram_webhook():
+@app.route(f"/webhook/{BOT_TOKEN}", methods=["POST"])
+def webhook():
     data = request.get_json()
     print("📩 Telegram Data:", data)
 
     message = data.get("message", {})
     chat_id = message.get("chat", {}).get("id")
-    user = message.get("from", {})
-    user_name = user.get("username") or user.get("first_name", "Unknown")
-    user_id = user.get("id", 0)
-    session = user_sessions.get(chat_id, {})
 
-    if "photo" in message:
-        try:
-            file_id = message["photo"][-1]["file_id"]
-            file_info = requests.get(f"{TELEGRAM_API_URL}/getFile?file_id={file_id}").json()
-            file_path = file_info["result"]["file_path"]
-            image_bytes = requests.get(f"https://api.telegram.org/file/bot{TELEGRAM_TOKEN}/{file_path}").content
+    if 'text' in message and message['text'].startswith("/fire"):
+        parts = message['text'].split()
+        if len(parts) == 5:
+            _, ftype, intensity, lat, lon = parts
+            send_mqtt_alert(ftype.upper(), intensity, message['from']['first_name'], lat, lon)
+            return send_reply(chat_id, f"🔥 Fire alert sent!\nType: {ftype}, Intensity: {intensity}, Location: {lat}, {lon}")
+        else:
+            return send_reply(chat_id, "⚠️ Format: `/fire B 3 22.57 88.36`", "Markdown")
 
-            lat, lng = extract_lat_lng_from_image(image_bytes)
-            print(f"🧠 Extracted Lat: {lat}, Lng: {lng}")
+    elif 'photo' in message:
+        file_id = message['photo'][-1]['file_id']
+        file_path = get_file_path(file_id)
+        image_data = download_image(file_path)
+        lat, lon = ocr_lat_lon(image_data)
 
-            if lat and lng:
-                user_sessions[chat_id] = {"lat": lat, "lng": lng, "step": "type"}
-                reply(chat_id, "📷 Location extracted from image!\nChoose fire type:", [[k] for k in FIRE_TYPES])
-            else:
-                reply(chat_id, "⚠️ Couldn't extract Lat/Long. Please try again or use `/fire` manually.")
-        except Exception as e:
-            print("❌ Image error:", e)
-            reply(chat_id, "❌ Error reading image.")
-        return "OK", 200
+        if lat and lon:
+            return send_reply(chat_id, f"📷 Location extracted!\nLat: {lat}, Lon: {lon}\n\nNow use `/fire B 3 {lat} {lon}` to report fire.")
+        else:
+            return send_reply(chat_id, "⚠️ Couldn't extract Lat/Long from image. Use `/fire` manually.")
 
-    text = message.get("text", "").strip()
+    elif 'text' in message and message['text'] == "/start":
+        return send_reply(chat_id, "👋 *Welcome to FireLinx!*\n\n📷 Send a GPS-tagged image with `Lat` and `Long`\nOr use `/fire B 3 22.5726 88.3639`", "Markdown")
 
-    if text.lower() in ["/start", "start"]:
-        reply(chat_id, "👋 *Welcome to FireLinx!*\n\n📷 Send a GPS-tagged image with `Lat` and `Long`\n"
-                      "Or use `/fire B 3 22.5726 88.3639`", markdown=True)
-        return "OK", 200
+    return "ok"
 
-    if text.lower() == "/help":
-        reply(chat_id, "📘 *Help*\nSend image with `Lat` & `Long`, or use `/fire B 3 <lat> <lng>`", markdown=True)
-        return "OK", 200
+def get_file_path(file_id):
+    res = requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getFile?file_id={file_id}").json()
+    return res["result"]["file_path"]
 
-    if text.startswith("/fire"):
-        try:
-            _, fire_type, intensity, raw_lat, raw_lng = text.split()
-            if fire_type.upper() not in FIRE_TYPES or intensity not in INTENSITIES:
-                raise ValueError
-            send_mqtt_alert(chat_id, user_name, user_id, fire_type.upper(), intensity, float(raw_lat), float(raw_lng))
-        except Exception:
-            reply(chat_id, "❌ Invalid format. Use `/fire B 3 22.5726 88.3639`", markdown=True)
-        return "OK", 200
+def download_image(file_path):
+    url = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+    response = requests.get(url)
+    return Image.open(BytesIO(response.content)).convert("RGB")
 
-    if session.get("step") == "type" and text.upper() in FIRE_TYPES:
-        session["fireType"] = text.upper()
-        session["step"] = "intensity"
-        user_sessions[chat_id] = session
-        reply(chat_id, "🔥 Choose fire intensity:", [[i] for i in INTENSITIES])
-        return "OK", 200
+def ocr_lat_lon(img):
+    result = ocr.ocr(np.array(img), cls=True)
+    text = " ".join([line[1][0] for block in result for line in block])
+    print("📜 OCR Text:", text)
+    return extract_lat_long_from_text(text)
 
-    if session.get("step") == "intensity" and text in INTENSITIES:
-        session["intensity"] = text
-        send_mqtt_alert(chat_id, user_name, user_id, session["fireType"], text, session["lat"], session["lng"])
-        return "OK", 200
+def send_reply(chat_id, text, mode=None):
+    payload = {
+        "chat_id": chat_id,
+        "text": text,
+    }
+    if mode:
+        payload["parse_mode"] = mode
+    response = requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json=payload)
+    print("📬 Telegram API response:", response.text)
+    return "ok"
 
-    reply(chat_id, "🤖 Send a GPS-tagged photo or use `/fire`.", markdown=True)
-    return "OK", 200
+@app.route("/ping", methods=["GET"])
+def ping():
+    return "pong", 200
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", port=5000)
