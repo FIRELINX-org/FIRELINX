@@ -3,7 +3,7 @@ const mqtt = require('mqtt');
 // Replace with your actual HiveMQ Cloud credentials
 const options = {
   username: 'Staferb',
-  password: '',
+  password: 'EspWebDash@32',
   reconnectPeriod: 5000,
   connectTimeout: 8000
 };
