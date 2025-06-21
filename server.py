@@ -41,6 +41,11 @@ def get_allowed_origin():
         return origin
     return allowed_origins[0] if allowed_origins else '*'
 
+@app.route('/', methods=['GET'])
+def root():
+    """Root endpoint for health checks"""
+    return jsonify({"status": "FIRELINX API is running", "service": "FIRELINX API"}), 200
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint for deployment"""
