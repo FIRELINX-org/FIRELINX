@@ -1,20 +1,19 @@
 import mqtt from 'mqtt';
+import type { FireReport } from '../types';
 
-// HiveMQ Cloud Configuration
+// Your HiveMQ Cluster Configuration
 const MQTT_CONFIG = {
-  clusterId: '075450a6c27340a0bd939f7d516ec460',
-  username: 'hivemq.webclient.1743685329123',
-  password: '9ZG6qrP3H:A>y1;an@sK',
-  topic: 'staferb/web_alerts'
+  brokerUrl: 'wss://259353f6c5704a35aeb3dff107a0ab04.s1.eu.hivemq.cloud:8884/mqtt',
+  username: 'Staferb',  // <-- put your actual username here
+  password: 'EspWebDash@32',  // <-- put your actual password here
+  topic: 'staferb/web_alerts'     // You can customize this if needed
 };
-
-const brokerUrl = `wss://${MQTT_CONFIG.clusterId}.s1.eu.hivemq.cloud:8884/mqtt`;
 
 let client: mqtt.MqttClient | null = null;
 
 export const initializeMQTT = () => {
   if (!client) {
-    client = mqtt.connect(brokerUrl, {
+    client = mqtt.connect(MQTT_CONFIG.brokerUrl, {
       username: MQTT_CONFIG.username,
       password: MQTT_CONFIG.password,
       reconnectPeriod: 5000,
@@ -22,33 +21,44 @@ export const initializeMQTT = () => {
     });
 
     client.on('connect', () => {
-      console.log('Connected to HiveMQ Cloud');
+      console.log('✅ Connected to HiveMQ (Your Cluster)');
     });
 
     client.on('error', (err) => {
-      console.error('Connection error:', err);
+      console.error('❌ MQTT Connection Error:', err);
     });
   }
   return client;
 };
 
-export const sendFireAlert = async (formData: any) => {
+export const sendFireAlert = async (formData: FireReport) => {
   if (!client) {
     client = initializeMQTT();
   }
 
   const message = {
     command: 'fire_alert',
-    payload: `${formData.fireType},${formData.fireIntensity},${formData.verified},${formData.user},${formData.userID},${formData.stnID},${formData.latitude},${formData.longitude},${formData.date},${formData.time}`
+    payload: {
+      fireType: formData.fireType,
+      fireIntensity: formData.fireIntensity,
+      verified: formData.verified,
+      user: formData.user,
+      userID: formData.userID,
+      stnID: formData.stnID,
+      latitude: formData.latitude,
+      longitude: formData.longitude,
+      date: formData.date,
+      time: formData.time
+    }
   };
 
   return new Promise((resolve, reject) => {
     client!.publish(MQTT_CONFIG.topic, JSON.stringify(message), { qos: 1 }, (err) => {
       if (err) {
-        console.error('Publish error:', err);
+        console.error('❌ Publish failed:', err);
         reject(err);
       } else {
-        console.log('Published:', message);
+        console.log('📡 Published:', message);
         resolve(message);
       }
     });
