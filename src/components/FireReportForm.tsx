@@ -11,6 +11,11 @@ import type { FireReport, Coordinates } from '../types';
 
 Modal.setAppElement('#root');
 
+// API Configuration
+const API_BASE_URL = import.meta.env.PROD 
+  ? 'https://firelinx-1-1.onrender.com'
+  : 'http://localhost:5000';
+
 const FireMarker = ({ intensity = 1 }: { intensity?: number }) => {
   const baseSize = 48;
   const sizeIncrement = 24;
@@ -67,7 +72,7 @@ const FireReportForm: React.FC = () => {
 
   const triggerSOS = async () => {
     try {
-      const response = await fetch('http://localhost:5000/trigger-sos', {
+      const response = await fetch(`${API_BASE_URL}/trigger-sos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -161,7 +166,7 @@ const FireReportForm: React.FC = () => {
 
   const handleRecognizeFace = async () => {
     try {
-      const response = await fetch('http://localhost:5000/recognize', {
+      const response = await fetch(`${API_BASE_URL}/recognize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include'
@@ -343,7 +348,7 @@ const FireReportForm: React.FC = () => {
                         <div className="p-2 text-sm min-w-[150px]">
                           <div className="font-bold mb-1">Fire Details</div>
                           <div>Type: {formData.fireType}</div>
-                          <div>Intensity: {formData.fireIntensity}</div>
+                          <div>Integrity: {formData.fireIntensity}</div>
                           <div className="text-gray-500 text-xs mt-1">
                             {formatDDMCoordinates(userLocation.lat, userLocation.lng).latitude},
                             {formatDDMCoordinates(userLocation.lat, userLocation.lng).longitude}
